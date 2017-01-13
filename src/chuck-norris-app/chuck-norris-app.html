@@ -1,0 +1,104 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
+
+
+<dom-module id="chuck-norris-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      paper-icon-button.giant {
+        width: 100px;
+        height: 100px;
+      }
+
+      paper-badge.badge {
+        --paper-badge-width: 60px;
+        --paper-badge-height: 40px;
+        --paper-badge-margin-bottom: -100px;
+      }
+
+      .joke {
+        margin-bottom: 30px;
+        font-size: 2em;
+      }
+
+      .chuck {
+        margin-top: 30px;
+      }
+    </style>
+
+    <div class="chuck">
+      <paper-icon-button id="chuck-button" class="giant" src="http://theactionelite.com/site/wp-content/uploads/2012/07/Chuck_Norris-_01.jpg" on-tap="_fetchRandomJoke"></paper-icon-button>
+      <paper-badge id="chuckBadge" class="badge" for="chuck-button" label="Hit me!"></paper-badge>
+    </div>
+
+    <div class="joke">[[joke]]</div>
+
+    <paper-checkbox checked="{{tougherThanChuck}}">Are you tougher than Chuck Norris?</paper-checkbox>
+    <template is="dom-if" if="[[tougherThanChuck]]">
+        <div>
+            Identify yourself!
+            <paper-input value="{{firstName}}" label="First name" always-float-label></paper-input>
+            <paper-input value="{{lastName}}" label="Last name" always-float-label></paper-input>
+        </div>
+    </template>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'chuck-norris-app',
+
+      properties: {
+        joke: String,
+        jokeId: String,
+        tougherThanChuck: {
+          type: Boolean,
+          observer: '_tougherThanChuckChanged'
+        },
+        firstName: String,
+        lastName: String
+      },
+
+      _fetchJoke: function() {
+        var query = "?";
+        if(this.tougherThanChuck && this.firstName) {
+          query = query + "firstName=" + this.firstName;
+          if(this.lastName) {
+            query = query + "&lastName=" + this.lastName;
+          }
+        }
+
+        var jokeId = "random";
+        if(this.jokeId) {
+          jokeId = this.jokeId;
+        }
+
+        fetch('http://api.icndb.com/jokes/' +jokeId + query)
+          .then(res => res.json())
+          .then(json => {
+            this.joke = json.value.joke;
+            this.jokeId = json.value.id;
+          });
+      },
+
+      _fetchRandomJoke: function() {
+        this.jokeId = "random";
+        this._fetchJoke();
+      },
+
+      _tougherThanChuckChanged: function() {
+        if(this.joke) {
+          this._fetchJoke(this.jokeId);
+        }
+      }
+
+    });
+  </script>
+</dom-module>

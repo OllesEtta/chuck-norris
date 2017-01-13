@@ -1,0 +1,6 @@
+{
+  "name": "chuck-norris",
+  "short_name": "chuck-norris",
+  "start_url": "/",
+  "display": "standalone"
+}
